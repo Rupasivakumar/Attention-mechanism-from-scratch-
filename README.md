@@ -307,7 +307,7 @@ This project is the first step in a larger LLM-focused learning roadmap. Possibl
 
 ## 👩‍💻 Author
 
-**Your Name**
+**RUPASIVAKUMAR**
 
 Second-year Computer Science student exploring **LLMs, Deep Learning, DBMS, Python, and AI system development** through hands-on projects.
 
