@@ -1,317 +1,268 @@
-# Self-Attention from Scratch using NumPy
+# Attention Mechanism using NumPy
 
-## Overview
+## 📌 Project Overview
 
-This project is my first step in building a strong foundation for **Large Language Models (LLMs)** and **Transformer-based architectures**.
-In this implementation, I built the **Self-Attention mechanism from scratch using Python and NumPy**, without using deep learning libraries such as TensorFlow or PyTorch.
+This project demonstrates the implementation of the **Attention Mechanism** from scratch using **Python** and **NumPy**, without relying on deep learning libraries such as TensorFlow or PyTorch.
 
-Self-Attention is one of the most important ideas behind modern LLMs. It allows each token in a sequence to look at other tokens in the same sequence and decide **which tokens are more important for understanding context**.
+Attention is one of the most important ideas in modern deep learning and is a foundational concept behind **Large Language Models (LLMs)** and **Transformer-based architectures**. It helps a model decide **which parts of the input are more important** while generating an output or understanding context.
 
-The goal of this project is not just to get an output, but to understand the **full mathematical and implementation flow** of self-attention step by step.
-
----
-
-## Why this project?
-
-Large Language Models like GPT, BERT, and many Transformer-based systems rely heavily on **attention mechanisms**. Before working on advanced LLM projects, I wanted to understand the most fundamental building block of Transformers at a low level.
-
-This project helped me learn:
-
-* how tokens are represented as vectors
-* how **Query, Key, and Value** matrices are created
-* how similarity between tokens is measured
-* how attention weights are computed
-* how the final context-aware representation is generated
-
-This is part of my semester-long LLM learning journey, where I am building concepts from scratch and gradually moving toward a **portfolio-level LLM project**.
+This project was built as part of my semester-long LLM learning journey to understand the mathematical and implementation-level details of attention before moving toward advanced topics such as **self-attention, multi-head attention, transformers, and LLMs**.
 
 ---
 
-## Learning Objective
+## 🎯 Objective
 
-The objective of this project is to understand and implement the **Self-Attention mechanism manually** using NumPy.
+The main goals of this project are:
 
-By completing this task, I aimed to:
-
-* understand the intuition behind self-attention
-* implement the mathematical operations step by step
-* learn how **Q, K, and V** are generated from input embeddings
-* compute attention scores using matrix multiplication
-* apply scaling and softmax correctly
-* generate the final attention output
-* build a strong base for future topics like:
-
-  * Multi-Head Attention
-  * Positional Encoding
-  * Transformer Encoder
-  * Mini LLM pipeline implementation
+* To understand the **core idea of the Attention Mechanism**
+* To implement attention computations manually using **NumPy**
+* To learn how **Query (Q), Key (K), and Value (V)** representations are used
+* To understand how attention scores are calculated and normalized
+* To build a strong foundation for future **LLM and Transformer projects**
 
 ---
 
-## What is Self-Attention?
+## 🧠 Why Attention Matters
 
-Self-Attention is a mechanism that helps a model understand **relationships between words/tokens in the same input sequence**.
+Traditional sequence models often struggle to capture long-range relationships between words or tokens in a sequence. The Attention Mechanism solves this by allowing the model to **focus on the most relevant parts of the input** while processing information.
 
-For example, in a sentence like:
+In simple terms, attention answers the question:
 
-> **"The cat sat on the mat because it was soft."**
+> **“Out of all the available input tokens, which ones should the model focus on more right now?”**
 
-the word **"it"** should pay attention to **"mat"** more than unrelated words.
-Self-attention helps the model decide this mathematically.
+This concept is at the heart of:
 
-Instead of processing tokens one by one like traditional sequence models, self-attention allows **every token to interact with every other token** and compute a context-aware representation.
-
----
-
-## Core Idea
-
-For every token embedding in the input sequence, we create three vectors:
-
-* **Query (Q)** → what this token is looking for
-* **Key (K)** → what this token contains / offers
-* **Value (V)** → the actual information carried by the token
-
-Then the model does the following:
-
-1. Compare each token’s **Query** with all tokens’ **Keys**
-2. Compute similarity scores
-3. Convert those scores into probabilities using **Softmax**
-4. Use those probabilities to combine the **Values**
-5. Produce a new representation for each token that contains context from the whole sequence
+* Machine Translation
+* Text Summarization
+* Question Answering
+* Transformers
+* Large Language Models (LLMs)
 
 ---
 
-## Mathematical Workflow
-
-If the input embedding matrix is:
-
-[
-X \in \mathbb{R}^{n \times d}
-]
-
-where:
-
-* **n** = number of tokens
-* **d** = embedding dimension
-
-then we create three trainable weight matrices:
-
-[
-W_Q,; W_K,; W_V
-]
-
-and compute:
-
-[
-Q = XW_Q
-]
-
-[
-K = XW_K
-]
-
-[
-V = XW_V
-]
-
-### Step 1: Attention Scores
-
-We compare each query with all keys:
-
-[
-\text{Scores} = QK^T
-]
-
-This gives a score matrix showing how much each token should attend to every other token.
-
----
-
-### Step 2: Scaling
-
-To avoid very large values when the dimension grows, we scale the scores:
-
-[
-\text{Scaled Scores} = \frac{QK^T}{\sqrt{d_k}}
-]
-
-where:
-
-* (d_k) = dimension of the key vectors
-
----
-
-### Step 3: Softmax
-
-We convert the scaled scores into probabilities:
-
-[
-\text{Attention Weights} = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
-]
-
-Each row of the attention weights matrix sums to **1**.
-
----
-
-### Step 4: Final Attention Output
-
-The attention weights are used to combine the value vectors:
-
-[
-\text{Output} = \text{Attention Weights} \cdot V
-]
-
-This output is the **context-aware representation** of the input sequence.
-
----
-
-## Project Workflow
-
-This implementation follows the self-attention mechanism step by step.
-
-### 1. Define Input Embeddings
-
-Create a small matrix representing token embeddings for a sample sequence.
-
-### 2. Initialize Weight Matrices
-
-Initialize three matrices:
-
-* Query weight matrix (W_Q)
-* Key weight matrix (W_K)
-* Value weight matrix (W_V)
-
-These matrices are used to project the input embeddings into Q, K, and V spaces.
-
-### 3. Generate Query, Key, and Value Matrices
-
-Using matrix multiplication:
-
-* (Q = XW_Q)
-* (K = XW_K)
-* (V = XW_V)
-
-### 4. Compute Raw Attention Scores
-
-Multiply Query with the transpose of Key:
-
-* (QK^T)
-
-This produces token-to-token similarity scores.
-
-### 5. Scale the Scores
-
-Divide the scores by (\sqrt{d_k}) to stabilize the values.
-
-### 6. Apply Softmax
-
-Convert the scaled scores into attention probabilities.
-
-### 7. Compute Final Attention Output
-
-Multiply the attention weights by the Value matrix to obtain the final output.
-
----
-
-## Example Flow
-
-Suppose we have 3 tokens in a sentence.
-Each token is represented by an embedding vector.
-
-The self-attention mechanism allows:
-
-* token 1 to look at token 1, token 2, token 3
-* token 2 to look at token 1, token 2, token 3
-* token 3 to look at token 1, token 2, token 3
-
-This means every token gets a chance to collect useful contextual information from the full sequence.
-
-That is what makes Transformers so powerful for language tasks.
-
----
-
-## Technologies Used
+## 🛠️ Technologies Used
 
 * **Python 3**
 * **NumPy**
-* **Jupyter Notebook / Python Script**
+* **Jupyter Notebook**
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```bash
-self-attention-numpy/
-│── self_attention.ipynb
-│── self_attention.py        # optional script version
+Attention-Mechanism/
+│── attention_mechanism.ipynb
 │── README.md
 ```
 
-If you only have the notebook for now, you can keep it like this:
+> If converted into a Python script later:
 
 ```bash
-self-attention-numpy/
-│── self_attention.ipynb
+Attention-Mechanism/
+│── attention_mechanism.py
 │── README.md
 ```
 
 ---
 
-## Output Generated
+## ⚙️ Concepts Implemented
 
-The implementation prints / shows the following intermediate and final outputs:
+This project covers the basic workflow of the **Attention Mechanism**:
 
-* Input embedding matrix
-* Query matrix (**Q**)
-* Key matrix (**K**)
-* Value matrix (**V**)
-* Raw attention scores
-* Scaled attention scores
-* Attention weight matrix
-* Final self-attention output
-
-These outputs make it easier to understand how data moves through each stage of the attention mechanism.
+1. Creating input embeddings
+2. Initializing weight matrices
+3. Generating **Query (Q)**, **Key (K)**, and **Value (V)** matrices
+4. Computing attention scores
+5. Scaling the scores
+6. Applying **Softmax**
+7. Generating the final attention output
 
 ---
 
-## Key Concepts Covered
+## 🔍 Step-by-Step Working
 
-This project covers the following LLM and Transformer fundamentals:
+### Step 1: Input Embeddings
 
-* Self-Attention
+We begin with a set of input vectors (embeddings), where each row represents a token and each column represents a feature.
+
+Example:
+
+```python
+X = [
+  [x11, x12, x13, ...],
+  [x21, x22, x23, ...],
+  [x31, x32, x33, ...]
+]
+```
+
+These embeddings are the numerical representations of input tokens.
+
+---
+
+### Step 2: Initialize Weight Matrices
+
+Three trainable weight matrices are used:
+
+* **WQ** → Query weight matrix
+* **WK** → Key weight matrix
+* **WV** → Value weight matrix
+
+These matrices transform the input embeddings into three different representations required for attention.
+
+---
+
+### Step 3: Compute Query, Key, and Value Matrices
+
+The input embeddings are multiplied with the weight matrices:
+
+```python
+Q = X @ WQ
+K = X @ WK
+V = X @ WV
+```
+
+Where:
+
+* **Q (Query)** represents what a token is looking for
+* **K (Key)** represents what a token contains
+* **V (Value)** represents the actual information carried by the token
+
+---
+
+### Step 4: Calculate Attention Scores
+
+The attention score is calculated using the dot product of **Q** and **Kᵀ**:
+
+```python
+scores = Q @ K.T
+```
+
+This gives a score showing how strongly one token should attend to another.
+
+---
+
+### Step 5: Scale the Scores
+
+The raw attention scores are scaled by the square root of the key dimension:
+
+```python
+scaled_scores = scores / sqrt(dk)
+```
+
+where **dk** is the dimension of the key vectors.
+
+Scaling helps stabilize the values before applying Softmax and prevents extremely large scores.
+
+---
+
+### Step 6: Apply Softmax
+
+Softmax converts the scaled scores into probabilities:
+
+```python
+attention_weights = softmax(scaled_scores)
+```
+
+These probabilities represent how much focus each token should place on the others.
+
+---
+
+### Step 7: Compute Final Attention Output
+
+Finally, the attention weights are multiplied with the Value matrix:
+
+```python
+output = attention_weights @ V
+```
+
+This produces the final **attention output**, which is a context-aware representation of the input.
+
+---
+
+## 🧮 Mathematical Formulation
+
+The Attention Mechanism can be summarized as:
+
+```math
+Q = XW_Q
+K = XW_K
+V = XW_V
+```
+
+```math
+\text{Scores} = QK^T
+```
+
+```math
+\text{Scaled Scores} = \frac{QK^T}{\sqrt{d_k}}
+```
+
+```math
+\text{Attention Weights} = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
+```
+
+```math
+\text{Output} = \text{Attention Weights} \cdot V
+```
+
+---
+
+## 📊 Output of the Program
+
+The notebook/program displays the following intermediate and final results:
+
+* Input Embeddings
+* Query Matrix (**Q**)
+* Key Matrix (**K**)
+* Value Matrix (**V**)
+* Raw Attention Scores
+* Scaled Attention Scores
+* Attention Weights
+* Final Attention Output
+
+This makes it easier to understand how each mathematical step contributes to the final result.
+
+---
+
+## 📘 Key Concepts Learned
+
+Through this project, I explored:
+
+* Attention Mechanism
+* Query, Key, Value (QKV)
+* Matrix Multiplication in NumPy
 * Scaled Dot-Product Attention
-* Query, Key, and Value (QKV)
-* Token interaction inside a sequence
-* Matrix multiplication in attention computation
-* Softmax normalization
-* Context-aware token representation
-* Foundation of Transformer models
+* Softmax Normalization
+* Context-based token weighting
+* Foundations of Transformer architecture
+* Core concepts behind LLMs
 
 ---
 
-## How to Run
+## ▶️ How to Run
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/self-attention-numpy.git
-cd self-attention-numpy
+git clone https://github.com/your-username/attention-mechanism-numpy.git
 ```
 
-### 2. Install NumPy
+### 2. Move into the project folder
+
+```bash
+cd attention-mechanism-numpy
+```
+
+### 3. Install dependencies
 
 ```bash
 pip install numpy
 ```
 
-### 3. Run the implementation
+### 4. Open the notebook
 
-If using a Python script:
-
-```bash
-python self_attention.py
-```
-
-If using Jupyter Notebook:
+If you are using Jupyter Notebook:
 
 ```bash
 jupyter notebook
@@ -320,102 +271,48 @@ jupyter notebook
 Then open:
 
 ```bash
-self_attention.ipynb
+attention_mechanism.ipynb
 ```
 
 ---
 
-## What I Learned from this Project
+## 🎓 Learning Outcome
 
-Through this project, I learned how self-attention works internally rather than treating it as a black box.
+After completing this project, I gained a practical understanding of:
 
-### Technical understanding gained:
-
-* how embeddings are transformed into Q, K, and V
-* how attention scores are calculated
-* why scaling by (\sqrt{d_k}) is necessary
-* how softmax turns scores into meaningful weights
-* how the weighted sum of values creates context-aware output
-
-### Conceptual understanding gained:
-
-* why attention is better at capturing long-range dependencies
-* how Transformers process all tokens in parallel
-* why self-attention is the foundation of modern LLMs
+* How attention works mathematically
+* Why Q, K, and V are needed
+* How models decide which tokens are more important
+* How attention weights are calculated
+* How attention creates context-aware representations
+* Why attention is the foundation of Transformers and LLMs
 
 ---
 
-## Limitations of the Current Version
+## 🚀 Future Improvements
 
-This project is intentionally a **basic single-head self-attention implementation** for learning purposes.
+This project is the first step in a larger LLM-focused learning roadmap. Possible next improvements include:
 
-Current limitations:
-
-* no positional encoding
-* no masking
-* no multi-head attention
-* no trainable optimization loop
-* no PyTorch / TensorFlow implementation
-* uses small manual embeddings for demonstration
-
----
-
-## Future Improvements
-
-This project is the starting point of a larger LLM-focused learning roadmap.
-Planned future extensions include:
-
-* **Multi-Head Attention from scratch**
-* **Positional Encoding implementation**
-* **Layer Normalization**
-* **Residual Connections**
+* **Self-Attention implementation**
+* **Multi-Head Attention**
+* **Positional Encoding**
+* **Masked Attention**
 * **Transformer Encoder block**
-* **Mini text generation / LLM-style toy project**
-* **PyTorch version of self-attention**
+* **Mini Transformer from scratch**
 * **Visualization of attention weights**
-* **End-to-end portfolio LLM project on GitHub**
+* **PyTorch implementation for comparison**
+* **LLM mini-project based on Transformer architecture**
 
 ---
 
-## Semester LLM Project Roadmap
+## 👩‍💻 Author
 
-This repository is part of a broader semester project where I will gradually move from **fundamentals to a portfolio-level LLM project**.
+**Your Name**
 
-Planned progression:
-
-1. Self-Attention using NumPy
-2. Multi-Head Attention
-3. Positional Encoding
-4. Transformer Encoder block
-5. Tokenization and embeddings pipeline
-6. Small language modeling experiments
-7. End-to-end LLM-inspired project for GitHub portfolio
+Second-year Computer Science student exploring **LLMs, Deep Learning, DBMS, Python, and AI system development** through hands-on projects.
 
 ---
 
-## Repository Purpose
+## ⭐ Note
 
-This repository is meant to document my practical understanding of LLM fundamentals by implementing core ideas from scratch.
-
-Instead of only using high-level libraries, I want to understand:
-
-* the mathematics behind Transformer components
-* how these components are implemented in code
-* how to explain them clearly
-* how to build toward real LLM applications
-
----
-
-## Author
-
-**Rupa Sivakumar**
-Second-Year Computer Science Student
-Interested in **LLMs, Python, AI projects, and building portfolio-level systems from fundamentals**
-
----
-
-## Final Note
-
-This project is a foundational step in my LLM journey.
-Understanding self-attention deeply is essential before moving into larger Transformer and LLM implementations.
-This repository represents not just a coding task, but a deliberate effort to learn **how modern language models actually work under the hood**.
+This project is part of my semester-long journey to build a **portfolio-level LLM project** from scratch by first understanding the fundamental building blocks such as **Attention, Transformers, and token representations** before moving to larger implementations.
